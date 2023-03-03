@@ -25,6 +25,7 @@ export default function App() {
     }
 
     setIsLoading(true);
+
     fetchAPI(query, page)
       .then(({ hits, totalHits }) => {
         const array = hits.map(hit => ({
@@ -34,18 +35,23 @@ export default function App() {
           largeImage: hit.largeImageURL,
         }));
 
+        setTotalImages(totalHits);
+
         if (!totalHits) {
-          setIsLoading(false);
           alert(`Sorry, but there is no any data for ${query}`);
+          return;
         }
 
-        setImages(prevState => [...prevState, ...array]);
-        setImagesOnPage(prevState => prevState + array.length);
-        setTotalImages(totalHits);
+        if (totalHits !== 0 && page === 1) {
+          setImages(array);
+          setImagesOnPage(array.length);
+        } else {
+          setImages(prevState => [...prevState, ...array]);
+          setImagesOnPage(prevState => prevState + array.length);
+        }
       })
       .catch(error => {
-        setError(error.message);
-        setIsLoading(false);
+        setError(error);
       })
       .finally(() => setIsLoading(false));
   }, [query, page, error]);
